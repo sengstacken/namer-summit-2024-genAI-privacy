@@ -5,12 +5,12 @@ import requests
 import streamlit as st
 from streamlit_cognito_auth import CognitoAuthenticator
 
-pool_id = "us-east-1_OclJDKfTS"
-app_client_id = "55fpc1q7dcneeu8qhruseuo16l"
-app_client_secret = "1ib69uim5fl3slv3rfbgdbkaotjcg6n4hpv470bt98b8v3078deo"
-kb_id = "WJO2HHGBTS"
-lambda_function_arn = 'arn:aws:lambda:us-east-1:431615879134:function:kbs5b8a05f8-lambda-function'
-dynamo_table = 'kbs5b8a05f8_doctor_patient_list_association'
+pool_id = "us-west-2_zidUml6yG"
+app_client_id = "4l78s47crsfjiq7dsvl6m5ghvg"
+app_client_secret = "1u8jcu923foi8rbvvjilbe4li1l36827buoojid9ota6uuc98485"
+kb_id = "ELSQWLXZWS"
+lambda_function_arn = 'arn:aws:lambda:us-west-2:431615879134:function:kbse1d68b57-lambda-function'
+dynamo_table = 'kbse1d68b57_user_corpus_list_association'
 
 authenticator = CognitoAuthenticator(
     pool_id=pool_id,
@@ -44,32 +44,32 @@ def get_user_sub(user_pool_id, username):
         print("User not found.")
         return None
 
-def get_patient_ids(doctor_id):
+def get_corpus_ids(user_id):
     dynamodb = boto3.client('dynamodb')
     response = dynamodb.query(
         TableName=dynamo_table,
-        KeyConditionExpression='doctor_id = :doctor_id',
+        KeyConditionExpression='user_id = :user_id',
         ExpressionAttributeValues={
-            ':doctor_id': {'S': doctor_id}
+            ':user_id': {'S': user_id}
         }
     )
     print(response)
-    patient_id_list = []  # Initialize the list
+    corpus_id_list = []  # Initialize the list
     for item in response['Items']:
-        patient_ids = item.get('patient_id_list', {}).get('L', [])
-        patient_id_list.extend([patient_id['S'] for patient_id in patient_ids])
-    return patient_id_list
+        corpus_ids = item.get('corpus_id_list', {}).get('L', [])
+        corpus_id_list.extend([corpus_id['S'] for corpus_id in corpus_ids])
+    return corpus_id_list
 
-def search_transcript(doctor_id, kb_id, text, patient_ids):
+def search_transcript(user_id, kb_id, text, corpus_ids):
     # Initialize the Lambda client
     lambda_client = boto3.client('lambda')
 
     # Payload for the Lambda function
     payload = json.dumps({
-        "doctorId": sub,
+        "userId": sub,
         "knowledgeBaseId": kb_id,
         "text": text, 
-        "patientIds": patient_ids
+        "corpusIds": corpus_ids
     }).encode('utf-8')
 
     try:
@@ -94,21 +94,21 @@ def search_transcript(doctor_id, kb_id, text, patient_ids):
 
 sub = get_user_sub(pool_id, authenticator.get_username())
 print(sub)
-patient_ids = get_patient_ids(sub)
-print(patient_ids)
+corpus_ids = get_corpus_ids(sub)
+print(corpus_ids)
 
 # Application Front
 
 with st.sidebar:
     st.header("User Information")
-    st.markdown("## Doctor")
+    st.markdown("## User")
     st.text(authenticator.get_username())
-    st.markdown("## Doctor Id")
+    st.markdown("## User Id")
     st.text(sub)
-    selected_patient = st.selectbox("Select a patient (or 'All' for all patients)", ['All'] + patient_ids)
+    # selected_patient = st.selectbox("Select a patient (or 'All' for all patients)", ['All'] + patient_ids)
     st.button("Logout", "logout_btn", on_click=logout)
 
-st.header("Transcript Search Tool")
+st.header("Corpus Search Tool")
 
 # Text input for the search query
 query = st.text_input("Enter your search query:")
@@ -116,13 +116,13 @@ query = st.text_input("Enter your search query:")
 if st.button("Search"):
     if query:
         # Perform search
-        patient_ids_filter = [selected_patient] if selected_patient != 'All' else patient_ids
-        results = search_transcript(sub, kb_id, query, patient_ids_filter)
+        corpus_ids_filter = corpus_ids
+        results = search_transcript(sub, kb_id, query, corpus_ids_filter)
         print(results)
         if results:
             st.subheader("Search Results:")
             st.markdown(results["body"], unsafe_allow_html=True)
         else:
-            st.write("No matching results found.")
+            st.write("No matching results found in corpus.")
     else:
         st.write("Please enter a search query.")
