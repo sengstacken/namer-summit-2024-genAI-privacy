@@ -82,6 +82,7 @@ Resources:
               - cognito-idp:DescribeUserPool
               - cognito-idp:DescribeUserPoolClient
               - cognito-idp:AdminGetUser
+              - cognito-idp:ListUserPools
             Resource: "*"
           - Sid: CognigtoPoolPermissions
             Effect: Allow
