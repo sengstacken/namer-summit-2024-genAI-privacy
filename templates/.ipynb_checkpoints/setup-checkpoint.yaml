@@ -1,0 +1,491 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Infrastructure for GENAI privacy workshop
+Parameters:
+  SolutionId:
+    Type: String
+    Default: namer
+    
+Resources:
+  SageMakerExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub '${AWS::Region}-${AWS::AccountId}-SageMaker-Execution-Namer-2024-Role'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+                  
+  SageMakerExecutionPolicy:
+    #CloudFormation template for IAM policy
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${AWS::Region}-${AWS::AccountId}-SageMaker-Execution-Namer-2024-Policy'
+      Roles:
+        - !Ref SageMakerExecutionRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: SMStudioCreatePresignedDomainUrlForUserProfile
+            Effect: Allow
+            Action:
+              - sagemaker:CreatePresignedDomainUrl
+            Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-lzurl2a1uagr/*'
+          - Sid: SMStudioAppPermissionsListAndDescribe
+            Effect: Allow
+            Action:
+              - sagemaker:ListApps
+              - sagemaker:ListDomains
+              - sagemaker:ListUserProfiles
+              - sagemaker:ListSpaces
+              - sagemaker:DescribeApp
+              - sagemaker:DescribeDomain
+              - sagemaker:DescribeUserProfile
+              - sagemaker:DescribeSpace
+              - sagemaker:ListTags
+            Resource:
+              - "*"
+          - Sid: CloudFormationPermissions
+            Effect: Allow
+            Action:
+              - cloudformation:CreateStack
+              - cloudformation:DescribeStacks
+            Resource: "*"
+          - Sid: CognigtoPermissions
+            Effect: Allow
+            Action:
+              - cognito-idp:CreateUserPool
+              - cognito-idp:DeleteUserPool
+              - cognito-idp:CreateUserPoolClient
+              - cognito-idp:DeleteUserPoolClient
+              - cognito-idp:DescribeUserPool
+              - cognito-idp:DescribeUserPoolClient
+              - cognito-idp:AdminGetUser
+              - cognito-idp:ListUserPools
+            Resource: "*"
+          - Sid: CognigtoPoolPermissions
+            Effect: Allow
+            Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminSetUserPassword
+            Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+          - Sid: DynamoDBPermissions
+            Effect: Allow
+            Action:
+              - dynamodb:DescribeTable
+              - dynamodb:CreateTable
+              - dynamodb:DeleteTable
+            Resource: "*"
+          - Sid: DynamoDBTablePermissions
+            Effect: Allow
+            Action:
+              - dynamodb:BatchWriteItem
+              - dynamodb:Query
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*'
+          - Sid: OpenSearchPermissions
+            Effect: Allow
+            Action:
+              - aoss:CreateAccessPolicy
+              - aoss:CreateSecurityPolicy
+              - aoss:ListAccessPolicies
+              - aoss:GetAccessPolicy
+              - aoss:UpdateSecurityPolicy
+              - aoss:DeleteSecurityPolicy
+              - aoss:GetSecurityPolicy
+              - aoss:CreateCollection
+              - aoss:DeleteCollection
+              - aoss:BatchGetCollection
+              - aoss:DeleteAccessPolicy
+              - aoss:ListCollections
+              - aoss:UpdateCollection
+              - aoss:UpdateAccessPolicy
+              - aoss:ListSecurityPolicies
+            Resource: "*"
+          - Sid: OpenSearchPolicyPermissions
+            Effect: Allow
+            Action:
+              - aoss:DeleteCollection
+              - aoss:CreateCollection
+              - aoss:UpdateCollection
+              - aoss:ListCollections
+              - aoss:APIAccessAll
+              - aoss:DashboardsAccessAll
+            Resource: "*"
+          - Sid: S3Permissions
+            Effect: Allow
+            Action:
+              - s3:CreateBucket
+              - s3:DeleteBucket
+            Resource: "*"
+          - Sid: S3ObjectPermissions
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:ListBucket
+            Resource: arn:aws:s3:::*
+          - Sid: IAMPermissions
+            Effect: Allow
+            Action:
+              - iam:CreateRole
+              - iam:PutRolePolicy
+              - iam:DeleteRolePolicy
+              - iam:GetRole
+              - iam:DeleteRole
+              - iam:PassRole
+            Resource: "*"
+          - Sid: IAMlimitedPermissions
+            Effect: Allow
+            Action:
+              - iam:PassRole
+            Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*'
+          - Sid: LambdaPermissions
+            Effect: Allow
+            Action:
+              - lambda:GetFunction
+              - lambda:CreateFunction
+              - lambda:DeleteFunction
+            Resource: "*"
+          - Sid: bedrockPermssions
+            Effect: Allow
+            Action:
+              - bedrock:CreateKnowledgeBase
+              - bedrock:CreateDataSource
+              - bedrock:ListKnowledgeBases
+              - bedrock:ListDataSources
+              - bedrock:TagResource
+              - bedrock:GetKnowledgeBase
+              - bedrock:GetDataSource
+              - bedrock:ListFoundationModels
+              - bedrock:GetFoundationModel
+              - bedrock:GetFoundationModelAvailability
+              - bedrock:PutFoundationModelEntitlement
+              - bedrock:Retrieve
+              - bedrock:RetrieveAndGenerate
+              - bedrock:ListTagsForResource
+            Resource: "*"
+          - Sid: bedrockInvokeModel
+            Effect: Allow
+            Action:
+              - bedrock:InvokeModel
+            Resource:
+              - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.titan-embed-text-v2:0'
+              - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0'
+          - Sid: bedrockknowledgebase
+            Effect: Allow
+            Action:
+              - bedrock:StartIngestionJob
+              - bedrock:GetIngestionJob
+            Resource:
+              - !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/*'
+          - Sid: lambdaPolicy
+            Effect: Allow
+            Action:
+              - lambda:PublishLayerVersion
+              - lambda:UpdateFunctionConfiguration
+              - lambda:GetLayerVersion
+              - lambda:InvokeFunction
+            Resource:
+              - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:latest-sdk-layer'
+              - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:latest-sdk-layer:*'
+              - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:*'
+              - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*'
+
+  SageMakerNotebook:
+    Type: AWS::SageMaker::NotebookInstance
+    DependsOn: 
+      - SageMakerExecutionRole
+    Properties:
+      NotebookInstanceName: !Sub '${AWS::Region}-${AWS::AccountId}-SageMaker-Execution-Namer-2024-Notebook'
+      DefaultCodeRepository: 'https://github.com/sengstacken/namer-summit-2024-genAI-privacy'
+      InstanceType: 'ml.m5.xlarge'
+      RoleArn: !GetAtt SageMakerExecutionRole.Arn
+      VolumeSizeInGB: 100
+      
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${SolutionId}-${AWS::AccountId}-Userpool'
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Required: true
+        - Name: sub
+          AttributeDataType: String
+          Required: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${SolutionId}-${AWS::AccountId}-Userpoolclient'
+      GenerateSecret: true
+      UserPoolId: !Ref CognitoUserPool
+
+  UserCorpusListAssociationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${SolutionId}-${AWS::AccountId}-User_corpus_list_association'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${SolutionId}-${AWS::AccountId}-bucket'
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${SolutionId}-${AWS::AccountId}-lambda-function'
+      Runtime: python3.12
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 90
+      Environment:
+          Variables:
+            USER_CORPUS_TABLE: !Ref UserCorpusListAssociationTable
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import os
+
+          def lambda_handler(event, context):
+              region = context.invoked_function_arn.split(':')[3]
+              knowledge_base_id = event['knowledgeBaseId']
+              user_id = event['userId']
+              corpus_ids = set(event['corpusIds'])
+              input_text = event['text']
+
+              # Initialize the DynamoDB client
+              dynamodb = boto3.client('dynamodb', region_name=region)
+
+              # Query the user_corpus_association table
+              response = dynamodb.query(
+                  TableName=os.environ.get('USER_CORPUS_TABLE'),
+                  KeyConditionExpression='user_id = :user_id',
+                  ExpressionAttributeValues={
+                      ':user_id': {'S': user_id}
+                  }
+              )
+              
+              print(list(corpus_ids))
+              # Extract the associated corpus IDs from the query result
+              associated_corpus_ids = set()
+              for item in response['Items']:
+                  corpus_id_list = item.get('corpus_id_list', {}).get('L', [])
+                  associated_corpus_ids.update(cid['S'] for cid in corpus_id_list)
+
+
+              # Check if the corpus IDs from the event exist in the associated corpus IDs
+              if not corpus_ids.issubset(associated_corpus_ids):
+                  return {
+                      'statusCode': 400,
+                      'body': json.dumps({
+                          'error': 'One or more corpus IDs are not associated with the provided user ID.'
+                      })
+                  }
+
+              # Initialize the Bedrock Agent client
+              bedrock_agent = boto3.client('bedrock-agent-runtime')
+
+              # Call the Bedrock Agent API to retrieve and generate response
+              response = bedrock_agent.retrieve_and_generate(
+                  input={
+                      "text": input_text
+                  },
+                  retrieveAndGenerateConfiguration={
+                      "type": "KNOWLEDGE_BASE",
+                      "knowledgeBaseConfiguration": {
+                          'knowledgeBaseId': knowledge_base_id,
+                          "modelArn": "arn:aws:bedrock:{}::foundation-model/anthropic.claude-v2:1".format(region),
+                          "retrievalConfiguration": {
+                              "vectorSearchConfiguration": {
+                                  "numberOfResults": 5,
+                                  "filter": {
+                                      "in": {
+                                          "key": "corpus_id",
+                                          "value": list(corpus_ids)
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  }
+              )
+
+              # Get the response text
+              output_text = response['output']['text']
+
+              # Return the response
+              return {
+                  'statusCode': 200,
+                  'body': output_text
+              }
+        
+
+  LambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Policies:
+          - PolicyName: !Sub '${SolutionId}-${AWS::AccountId}-Namer-lambda-policy'
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 'logs:CreateLogGroup'
+                    - 'logs:CreateLogStream'
+                    - 'logs:PutLogEvents'
+                  Resource: 'arn:aws:logs:*:*:*'
+                - Sid: BedrockAll
+                  Effect: Allow
+                  Action:
+                    - 'bedrock:*'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'dynamodb:GetItem'
+                    - 'dynamodb:Query'
+                    - 'dynamodb:Scan'
+                  Resource: !Join
+                    - ''
+                    - - 'arn:aws:dynamodb:'
+                      - !Ref 'AWS::Region'
+                      - ':'
+                      - !Ref 'AWS::AccountId'
+                      - ':table/'
+                      - !Ref UserCorpusListAssociationTable
+  KbRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'Namer-${AWS::AccountId}-KBRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - bedrock.amazonaws.com
+          Action:
+          - sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Fn::Sub: ${AWS::AccountId}
+            ArnLike:
+              aws:SourceArn:
+                Fn::Sub: arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/*
+      Policies:
+      - PolicyName: FoundationModelPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - bedrock:InvokeModel
+            Resource:
+              Fn::Sub: arn:aws:bedrock:${AWS::Region}::foundation-model/*
+            Sid: BedrockInvokeModelStatement
+      - PolicyName: OSSPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - aoss:APIAccessAll
+            Resource:
+              Fn::Sub: arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/*
+            Sid: OpenSearchServerlessAPIAccessAllStatement
+      - PolicyName: S3Policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource: arn:aws:s3:::*
+            Sid: S3ListBucketStatement
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3Bucket
+                  - /*
+            Sid: S3GetObjectStatement
+
+Outputs:
+  userpoolid:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+
+  userpoolarn:
+    Description: Cognito User Pool ARN
+    Value: !GetAtt CognitoUserPool.Arn
+
+  cognitoarn:
+    Description: Cognito ARN
+    Value: !GetAtt CognitoUserPool.Arn
+
+  clientid:
+    Description: Cognito User Pool Client ID
+    Value: !Ref CognitoUserPoolClient
+
+  clientsecret:
+    Description: Cognito User Pool Client Secret
+    Value: !GetAtt CognitoUserPoolClient.ClientSecret
+
+  dynamotable:
+    Description: DynamoDB Table Name
+    Value: !Ref UserCorpusListAssociationTable
+
+  s3bucket:
+    Description: S3 Bucket Name
+    Value: !Ref S3Bucket
+
+  lambdafunctionarn:
+    Description: Lambda Function ARN
+    Value: !GetAtt LambdaFunction.Arn
+
+  OpenSearchCollectionId:
+    Description: OpenSearch Serverless Collection Id
+    Value: !Ref Collection
