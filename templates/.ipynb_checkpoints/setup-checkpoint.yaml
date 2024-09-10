@@ -283,6 +283,7 @@ Resources:
             Action:
               - cognito-idp:AdminCreateUser
               - cognito-idp:AdminSetUserPassword
+              - cognito-idp:AdminDeleteUser
             Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
           - Sid: DynamoDBPermissions
             Effect: Allow
@@ -391,6 +392,7 @@ Resources:
             Action:
               - bedrock:StartIngestionJob
               - bedrock:GetIngestionJob
+              - bedrock:DeleteKnowledgeBase
             Resource:
               - !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/*'
           - Sid: lambdaPolicy
@@ -680,10 +682,6 @@ Outputs:
   lambdafunctionarn:
     Description: Lambda Function ARN
     Value: !GetAtt LambdaFunction.Arn
-
-  OpenSearchCollectionId:
-    Description: OpenSearch Serverless Collection Id
-    Value: !Ref Collection
     
   VPC:
     Description: A reference to the created VPC

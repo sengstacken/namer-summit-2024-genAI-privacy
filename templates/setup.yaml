@@ -682,10 +682,6 @@ Outputs:
   lambdafunctionarn:
     Description: Lambda Function ARN
     Value: !GetAtt LambdaFunction.Arn
-
-  OpenSearchCollectionId:
-    Description: OpenSearch Serverless Collection Id
-    Value: !Ref Collection
     
   VPC:
     Description: A reference to the created VPC
