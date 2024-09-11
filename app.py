@@ -5,12 +5,12 @@ import requests
 import streamlit as st
 from streamlit_cognito_auth import CognitoAuthenticator
 
-pool_id = "us-west-2_OlXRP7w4E"
-app_client_id = "2qb06inj73q26pf2daiuo0dq1l"
-app_client_secret = "1o076kflqg07ceunddhfppoqb7v7sogc0icts5otgaldg5942t1n"
-kb_id = "KFALN1AQGM"
-lambda_function_arn = 'arn:aws:lambda:us-west-2:431615879134:function:namertest-431615879134-lambda-function'
-dynamo_table = 'namertest-431615879134-User_corpus_list_association'
+pool_id = "us-east-1_zY5zbHuYj"
+app_client_id = "4o4m8gg5161fgopqq8au9j9ita"
+app_client_secret = "a5nt2pr81lkmee838npjerg9p72pgghp55ahkr64chkc9j07ip8"
+kb_id = "K1ILUHJIMQ"
+lambda_function_arn = 'arn:aws:lambda:us-east-1:850754977538:function:namer-850754977538-lambda-function'
+dynamo_table = 'namer-850754977538-User_corpus_list_association'
 
 authenticator = CognitoAuthenticator(
     pool_id=pool_id,
@@ -27,7 +27,7 @@ if not is_logged_in:
 def logout():
     authenticator.logout()
 
-def get_user_sub(user_pool_id, username):
+def get_user_sub(userpoolid, username):
     cognito_client = boto3.client('cognito-idp')
     try:
         response = cognito_client.admin_get_user(
@@ -121,7 +121,7 @@ if st.button("Search"):
         print(results)
         if results:
             st.subheader("Search Results:")
-            st.markdown(results["body"], unsafe_allow_html=True)
+            st.markdown(results, unsafe_allow_html=True)
         else:
             st.write("No matching results found in corpus.")
     else:
