@@ -546,32 +546,33 @@ Resources:
               bedrock_agent = boto3.client('bedrock-agent-runtime')
 
               # Call the Bedrock Agent API to retrieve and generate response
-              response = bedrock_agent.retrieve_and_generate(
-                  input={
-                      "text": input_text
-                  },
-                  retrieveAndGenerateConfiguration={
-                      "type": "KNOWLEDGE_BASE",
-                      "knowledgeBaseConfiguration": {
-                          'knowledgeBaseId': knowledge_base_id,
-                          "modelArn": "arn:aws:bedrock:{}::foundation-model/anthropic.claude-v2:1".format(region),
-                          "retrievalConfiguration": {
-                              "vectorSearchConfiguration": {
-                                  "numberOfResults": 5,
-                                  "filter": {
-                                      "in": {
-                                          "key": "corpus_id",
-                                          "value": list(corpus_ids)
+              try:
+                  response = bedrock_agent.retrieve_and_generate(
+                      input={
+                          "text": input_text
+                      },
+                      retrieveAndGenerateConfiguration={
+                          "type": "KNOWLEDGE_BASE",
+                          "knowledgeBaseConfiguration": {
+                              'knowledgeBaseId': knowledge_base_id,
+                              "modelArn": "arn:aws:bedrock:{}::foundation-model/anthropic.claude-v2:1".format(region),
+                              "retrievalConfiguration": {
+                                  "vectorSearchConfiguration": {
+                                      "numberOfResults": 5,
+                                      "filter": {
+                                          "in": {
+                                              "key": "corpus_id",
+                                              "value": list(corpus_ids)
+                                          }
                                       }
                                   }
                               }
                           }
                       }
-                  }
-              )
-
-              # Get the response text
-              output_text = response['output']['text']
+                  )
+                  output_text = response['output']['text']
+              except Exception as e:
+                  output_text = str(e)
 
               # Return the response
               return {
@@ -614,7 +615,7 @@ Resources:
                     - 'ec2:DescribeNetworkInterfaces'
                     - 'ec2:DeleteNetworkInterface'
                     - 'ec2:*VpcEndpoint*'
-                  Resource": '*'
+                  Resource: '*'
                 - Effect: Allow
                   Action:
                     - 'dynamodb:GetItem'
@@ -750,7 +751,3 @@ Outputs:
   PrivateSubnet2:
     Description: A reference to the private subnet in the 2nd Availability Zone
     Value: !Ref PrivateSubnet2
-
-  NoIngressSecurityGroup:
-    Description: Security group with no ingress rule
-    Value: !Ref NoIngressSecurityGroup
