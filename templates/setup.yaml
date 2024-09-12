@@ -380,6 +380,7 @@ Resources:
               - iam:GetRole
               - iam:DeleteRole
               - iam:PassRole
+              - iam:CreateServiceLinkedRole
             Resource: "*"
           - Sid: IAMlimitedPermissions
             Effect: Allow
