@@ -6,7 +6,6 @@ In this workshop, we will guide participants through the process of developing a
 
 - **Metadata Filtering for Access Control:** We will show how to apply metadata-based filtering to ensure that document retrieval is restricted to only those documents that each user is authorized to access.
 - **VPC Endpoint Integration:** Participants will learn how to connect their VPC and associated resources to communicate directly with the Bedrock API using VPC endpoints. This ensures that all API calls remain private within your VPC and do not traverse the public internet.
-- **VPC Endpoint Policies:** We will implement a VPC endpoint policy that restricts access to the Bedrock API based on specific conditions, adding an additional layer of security beyond the traditional IAM roles. This will ensure that API access is tightly controlled, regardless of what IAM roles may be in place.
 
 By the end of the workshop, participants will have hands-on experience with securely integrating a Bedrock Knowledge Base into a VPC architecture that maintains user privacy and access control at both the data and network levels.
 
@@ -81,13 +80,6 @@ We will configure a **VPC Endpoint** to allow the VPC and its associated resourc
 
 - All traffic between your resources and the Bedrock API remains within your VPC, adding a layer of privacy and security.
 - No public internet exposure is required to access Bedrock services.
-
-### 3. VPC Endpoint Policy
-
-To enhance security, we will create and apply a **VPC Endpoint Policy** that controls which roles and resources can access the Bedrock API through the VPC endpoint. This policy will allow us to:
-
-- Restrict access based on specific roles or conditions.
-- Ensure that even if a user has the correct IAM permissions, they cannot access the API unless they are connecting through the VPC endpoint, thereby adding a defense-in-depth strategy.
 
 ---
 
