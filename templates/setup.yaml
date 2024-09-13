@@ -370,7 +370,10 @@ Resources:
               - s3:PutObject
               - s3:DeleteObject
               - s3:ListBucket
-            Resource: arn:aws:s3:::namer*
+              - s3:GetObject
+            Resource: 
+                - arn:aws:s3:::namer*
+                - arn:aws:s3:::aws-ml-blog/bedrock-1-28-57.zip
           - Sid: IAMPermissions
             Effect: Allow
             Action:
