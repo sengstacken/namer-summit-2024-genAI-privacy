@@ -5,12 +5,12 @@ import requests
 import streamlit as st
 from streamlit_cognito_auth import CognitoAuthenticator
 
-pool_id = "us-east-1_Ho4YZNl28"
-app_client_id = "5ehs26es747p4t1qnpc0869pck"
-app_client_secret = "1h0s7c78acooagncu7up4hbb6fik90cau0a65n5jetj7oem9moqi"
-kb_id = "LL85IR1HOW"
-lambda_function_arn = 'arn:aws:lambda:us-east-1:850754977538:function:namer-850754977538-lambda-function'
-dynamo_table = 'namer-850754977538-User_corpus_list_association'
+pool_id = "us-west-2_IWEFefjun"
+app_client_id = "42hsdmehi4ui7qc3adlah3umui"
+app_client_secret = "12r17pd3iu35p847v4jqa2ksei3gh7g41qfbgl0pmrei5rh2o0eo"
+kb_id = "CF1EP1KHYD"
+lambda_function_arn = 'arn:aws:lambda:us-west-2:670696552568:function:namer-670696552568-lambda-function'
+dynamo_table = 'namer-670696552568-User_corpus_list_association'
 
 authenticator = CognitoAuthenticator(
     pool_id=pool_id,
